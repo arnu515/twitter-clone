@@ -1,6 +1,6 @@
 # Twitter clone with flask and react
 
-Read my blog post about it here
+Read my blog post about it [here](https://dev.to/arnu515/build-a-fullstack-twitter-clone-using-flask-and-react-1j72)
 
 ---
 
