@@ -2,10 +2,14 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import re
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///twitter.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_SECRET_KEY"] = "myawesomesecretisnevergonnagiveyouup"
 CORS(app)
+JWTManager(app)
 
 # DB
 db = SQLAlchemy(app)
@@ -93,12 +97,17 @@ def login():
         email = request.json["email"]
         password = request.json["pwd"]
         if (email and password):
-            users = getUsers()
+            user = list(filter(lambda x: x["email"] == email and x["password"] == password, getUsers()))
             # Check if user exists
-            return jsonify(len(list(filter(lambda x: x["email"] == email and x["password"] == password, users))) == 1)
+            if len(user) == 1:
+                token = create_access_token(identity=user[0]["id"])
+                return jsonify({"token": token})
+            else:
+                return jsonify({"error": "Invalid credentials"})
         else:
             return jsonify({"error": "Invalid form"})
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({"error": "Invalid form"})
 
 @app.route("/api/register", methods=["POST"])
@@ -126,6 +135,7 @@ def get_tweets():
     return jsonify(getTweets())
 
 @app.route("/api/addtweet", methods=["POST"])
+@jwt_required
 def add_tweet():
     try:
         title = request.json["title"]
@@ -138,6 +148,7 @@ def add_tweet():
         return jsonify({"error": "Invalid form"})
 
 @app.route("/api/deletetweet", methods=["DELETE"])
+@jwt_required
 def delete_tweet():
     try:
         tid = request.json["tid"]
