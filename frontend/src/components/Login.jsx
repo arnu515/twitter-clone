@@ -1,24 +1,21 @@
 import React, { Component } from "react";
 import axios from "axios";
 import Alert from "./Alert";
+import {login} from "../login";
 
 class Login extends Component {
     state = { err: "" };
 
     login = (e) => {
         e.preventDefault();
-        axios
-            .post("http://localhost:5000/api/login", {
-                email: document.getElementById("email").value,
-                pwd: document.getElementById("password").value,
-            })
-            .then((res) => {
-                if (res.data.error) {
-                    this.setState({ err: res.data.error });
-                } else {
-                    this.setState({ login: true });
-                }
-            });
+        login(document.getElementById("email").value,
+            document.getElementById("password").value).then(r => {
+            if (r === true) {
+                window.location = "/"
+            } else {
+                this.setState({err: r})
+            }
+        })
     };
 
     render() {
@@ -38,7 +35,7 @@ class Login extends Component {
                             <label htmlFor="email">Email</label>
                             <input
                                 type="email"
-                                class="w3-input w3-border"
+                                className="w3-input w3-border"
                                 id="email"
                             />
                         </p>
@@ -46,16 +43,15 @@ class Login extends Component {
                             <label htmlFor="password">Password</label>
                             <input
                                 type="password"
-                                class="w3-input w3-border"
+                                className="w3-input w3-border"
                                 id="password"
                             />
                         </p>
                         <p>
-                            <button type="submit" class="w3-button w3-blue">
+                            <button type="submit" className="w3-button w3-blue">
                                 Login
                             </button>
-                            {this.state.register && <p>You're logged in!</p>}
-                        </p>
+                                                    </p>
                     </form>
                 </div>
             </div>
