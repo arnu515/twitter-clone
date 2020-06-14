@@ -1,10 +1,16 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import axios from "axios";
 import Alert from "./Alert";
-import {login} from "../login";
+import {login, check} from "../login";
 
 class Login extends Component {
-    state = { err: "" };
+    state = {err: ""};
+
+    componentDidMount() {
+        check().then(r => {if (r) {
+            window.location = "/"
+        }})
+    }
 
     login = (e) => {
         e.preventDefault();
@@ -20,7 +26,7 @@ class Login extends Component {
 
     render() {
         return (
-            <div className="w3-card-4" style={{ margin: "2rem" }}>
+            <div className="w3-card-4" style={{margin: "2rem"}}>
                 <div className="w3-container w3-blue w3-center w3-xlarge">
                     LOGIN
                 </div>
@@ -51,7 +57,7 @@ class Login extends Component {
                             <button type="submit" className="w3-button w3-blue">
                                 Login
                             </button>
-                                                    </p>
+                        </p>
                     </form>
                 </div>
             </div>

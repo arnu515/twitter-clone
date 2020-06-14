@@ -2,19 +2,20 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import re
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, \
+    jwt_refresh_token_required, create_refresh_token, get_raw_jwt
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///twitter.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
 app.config["JWT_SECRET_KEY"] = "myawesomesecretisnevergonnagiveyouup"
+app.config["JWT_BLACKLIST_ENABLED"] = True
+app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
+jwt = JWTManager(app)
 CORS(app)
-JWTManager(app)
 
 # DB
-db = SQLAlchemy(app)
-
-
 class User(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True)  # primary_key makes it so that this value is unique and can be used to identify this record.
@@ -104,6 +105,27 @@ def delTweet(tid):
         return False
 
 
+class InvalidToken(db.Model):
+    __tablename__ = "invalid_tokens"
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def is_invalid(cls, jti):
+        q = cls.query.filter_by(jti=jti).first()
+        return bool(q)
+
+
+@jwt.token_in_blacklist_loader
+def check_if_blacklisted_token(decrypted):
+    jti = decrypted["jti"]
+    return InvalidToken.is_invalid(jti)
+
+
 # ROUTES
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -115,7 +137,8 @@ def login():
             # Check if user exists
             if len(user) == 1:
                 token = create_access_token(identity=user[0]["id"])
-                return jsonify({"token": token})
+                refresh_token = create_refresh_token(identity=user[0]["id"])
+                return jsonify({"token": token, "refreshToken": refresh_token})
             else:
                 return jsonify({"error": "Invalid credentials"})
         else:
@@ -147,11 +170,45 @@ def register():
 
 
 @app.route("/api/checkiftokenexpire", methods=["POST"])
+@jwt_required
 def check_if_token_expire():
+    print(get_jwt_identity())
+    return jsonify({"success": True})
+
+
+@app.route("/api/refreshtoken", methods=["POST"])
+@jwt_refresh_token_required
+def refresh():
+    identity = get_jwt_identity()
+    token = create_access_token(identity=identity)
+    return jsonify({"token": token})
+
+
+@app.route("/api/logout/access", methods=["POST"])
+@jwt_required
+def access_logout():
+    jti = get_raw_jwt()["jti"]
     try:
-        token = request.json["token"]
-    except:
-        return jsonify({"error": "Invalid form!"})
+        invalid_token = InvalidToken(jti=jti)
+        invalid_token.save()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return {"error": e}
+
+
+@app.route("/api/logout/refresh", methods=["POST"])
+@jwt_required
+def refresh_logout():
+    jti = get_raw_jwt()["jti"]
+    try:
+        invalid_token = InvalidToken(jti=jti)
+        invalid_token.save()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return {"error": e}
+
 
 @app.route("/api/tweets")
 def get_tweets():
@@ -164,7 +221,7 @@ def add_tweet():
     try:
         title = request.json["title"]
         content = request.json["content"]
-        uid = request.json["uid"]
+        uid = get_jwt_identity()
         addTweet(title, content, uid)
         return jsonify({"success": "true"})
     except Exception as e:

@@ -10,7 +10,7 @@ function Home() {
                 <button
                     className="w3-button w3-pink"
                     style={{ marginRight: "1rem" }}
-                    onClick={() => (window.location = "/register")}>
+                    onClick={() => (window.location = "/login")}>
                     Login
                 </button>
                 <button
