@@ -9,7 +9,7 @@ cryptography==2.9.2
 Flask==1.1.2
 Flask-Cors==3.0.8
 Flask-JWT==0.3.2
-Flask-JWT-Extended=3.24.1
+Flask-JWT-Extended==3.24.1
 Flask-RESTful==0.3.8
 Flask-SQLAlchemy==2.4.3
 get==2019.4.13
