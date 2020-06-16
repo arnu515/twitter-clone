@@ -8,7 +8,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
     jwt_refresh_token_required, create_refresh_token, get_raw_jwt
 import security
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="build", static_url_path="/")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///twitter.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
@@ -131,6 +131,16 @@ def check_if_blacklisted_token(decrypted):
 
 
 # ROUTES
+@app.route("/<a>")
+def react_routes(a):
+    return app.send_static_file("index.html")
+
+
+@app.route("/")
+def react_index():
+    return app.send_static_file("index.html")
+
+
 @app.route("/api/login", methods=["POST"])
 def login():
     try:
