@@ -3,3 +3,5 @@ backend/venv
 .DS_Store
 .vscode/
 .idea/
+backend/twitter.db
+backend/.env

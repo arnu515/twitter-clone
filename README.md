@@ -20,6 +20,17 @@ cd backend
 python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
+```
+
+Create the database:
+```python
+$ python3 # open the shell
+import app
+app.db.create_all()
+```
+
+Run the application
+```shell script
 python3 app.py
 ```
 

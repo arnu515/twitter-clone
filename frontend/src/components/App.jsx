@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import MainPage from "./MainPage";
 import {check} from "../login";
 import Logout from "./Logout";
+import UserSettings from "./UserSettings";
 
 function App() {
     let [login, setLogin] = React.useState(false);
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/login" exact component={Login} />
                 <Route path="/register" exact component={Register} />
                 <Route path="/logout" exact component={Logout} />
+                <Route path="/settings" exact component={UserSettings} />
             </Router>
         </React.Fragment>
     );

@@ -1,9 +1,16 @@
 import React, {Component} from "react";
 import axios from "axios";
 import Alert from "./Alert";
+import {check} from "../login";
 
 class Register extends Component {
     state = {err: ""};
+
+    componentDidMount() {
+        check().then(r => {if (r) {
+            window.location = "/"
+        }})
+    }
 
     register = (e) => {
         e.preventDefault();
