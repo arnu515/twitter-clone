@@ -271,7 +271,7 @@ def change_password():
         user = User.query.get(get_jwt_identity())
         if not (request.json["password"] and request.json["npassword"]):
             return jsonify({"error": "Invalid form"})
-        if not user.pwd == request.json["password"]:
+        if not security.checkpwd(request.json["password"], user.pwd):
             return jsonify({"error": "Wrong password"})
         user.pwd = request.json["npassword"]
         db.session.add(user)
