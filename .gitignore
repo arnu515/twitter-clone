@@ -6,4 +6,5 @@ backend/venv
 backend/twitter.db
 backend/.env
 backend/build
+frontend/build
 quickr/

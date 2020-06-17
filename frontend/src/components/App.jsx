@@ -9,6 +9,7 @@ import {check} from "../login";
 import Logout from "./Logout";
 import UserSettings from "./UserSettings";
 import NotFound from "./NotFound"
+import "./theme.css"
 
 function App() {
     let [login, setLogin] = React.useState(false);
